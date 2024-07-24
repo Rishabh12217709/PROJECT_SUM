@@ -1,0 +1,204 @@
+PROJECT - 2
+
+
+#include <iostream> // Include standard input-output library
+
+#include <cstdlib> // Include standard library for functions like rand()
+#include <cmath> // Include cmath library for mathematical functions
+#include <bits/stdc++.h> // Include all standard libraries (for maps, vectors, etc.)
+#include <ctime> // Include ctime library for date and time functions
+
+using namespace std;
+
+// Task class definition
+class Task {
+public:
+    string description;
+    string category;
+    bool completed;
+    string dueDate; // TAKEN FROM SYSTEM TODAY();
+    string priority; // LOW MEDIUM
+
+    Task(string description, string category, string priority, string dueDate) {
+        this->description = description;
+        this->category = category;
+        this->dueDate = dueDate;
+        this->priority = priority;
+        this->completed = false;
+    }
+};
+
+// Global structures
+stack<Task> undoStack;
+vector<Task> NotesAdded;
+vector<string> categories = {"Work", "Personal", "Study", "Shopping", "Other"};
+
+// Function to display tasks
+void displayTasks() {
+    if (NotesAdded.empty()) {
+        cout << "Please add some task first to View\n";
+    } else {
+        cout << "\nTasks:\n";
+        cout << "   Task  Category  Priority  DueDate  Status\n";
+
+        for (int i = 0; i < NotesAdded.size(); i++) {
+            cout << i + 1 << ". "
+                 << NotesAdded[i].description << " "
+                 << NotesAdded[i].category << " "
+                 << NotesAdded[i].priority << " "
+                 << NotesAdded[i].dueDate << " "
+                 << (NotesAdded[i].completed ? "Completed" : "Pending") << "\n";
+        }
+    }
+}
+
+// Function to mark task as completed
+void markTaskAsCompleted() {
+    int taskNumber;
+    cout << "Enter task number to mark as completed: ";
+    cin >> taskNumber;
+
+    if (taskNumber > 0 && taskNumber <= NotesAdded.size()) {
+        NotesAdded[taskNumber - 1].completed = true;
+    } else {
+        cout << "Invalid Task Number\n";
+    }
+}
+
+// Function to delete task
+void deleteTask() {
+    int taskNumber;
+    cout << "Enter task number to delete: ";
+    cin >> taskNumber;
+
+    if (taskNumber > 0 && taskNumber <= NotesAdded.size()) {
+        Task task = NotesAdded[taskNumber - 1];
+        undoStack.push(task);
+        NotesAdded.erase(NotesAdded.begin() + taskNumber - 1);
+        cout << "Task deleted successfully.\n";
+    } else {
+        cout << "Invalid Task Number\n";
+    }
+}
+
+// Function to undo last task deletion
+void undoDelete() {
+    if (!undoStack.empty()) {
+        Task lastValue = undoStack.top();
+        undoStack.pop();
+        NotesAdded.push_back(lastValue);
+        cout << "Undo successful. Last deleted task has been restored.\n";
+    } else {
+        cout << "Nothing to undo.\n";
+    }
+}
+
+// Function to filter tasks by category
+void filterTaskByCategory() {
+    string category;
+    cout << "Enter category to filter by: ";
+    cin.ignore();
+    getline(cin, category);
+
+    cout << "\nFiltered Tasks by Category (" << category << "):\n";
+    cout << "   Task  Category  Priority  DueDate  Status\n";
+
+    for (int i = 0; i < NotesAdded.size(); i++) {
+        if (NotesAdded[i].category == category) {
+            cout << i + 1 << ". "
+                 << NotesAdded[i].description << " "
+                 << NotesAdded[i].category << " "
+                 << NotesAdded[i].priority << " "
+                 << NotesAdded[i].dueDate << " "
+                 << (NotesAdded[i].completed ? "Completed" : "Pending") << "\n";
+        }
+    }
+}
+
+// Function to add a new task
+void addTask() {
+    string description;
+    string category;
+    string priority;
+
+    cout << "Enter the Description: ";
+    cin.ignore();
+    getline(cin, description);
+
+    auto now = time(nullptr);
+    tm* current = localtime(&now);
+
+    char buffer[80];
+    strftime(buffer, sizeof(buffer), "%Y-%m-%d", current);
+    string dueDate(buffer);
+
+    cout << "Choose a category:\n";
+    for (size_t i = 0; i < categories.size(); ++i) {
+        cout << i + 1 << ". " << categories[i] << endl;
+    }
+
+    int categoryChoice;
+    cin >> categoryChoice;
+    if (categoryChoice > 0 && categoryChoice <= categories.size()) {
+        category = categories[categoryChoice - 1];
+    } else {
+        cout << "Invalid choice, defaulting to 'Other'\n";
+        category = "Other";
+    }
+
+    cout << "Enter priority (HIGH/LOW/MEDIUM): ";
+    cin >> priority;
+    Task task(description, category, priority, dueDate);
+    NotesAdded.push_back(task);
+    cout << "Task added successfully.\n";
+}
+
+// Function to display the menu and handle user choices
+void displayMenu() {
+    int choice; // Variable to store the user's menu choice
+    do {
+        cout << "\nMenu:\n"
+             << "1. Add Task\n"
+             << "2. View Tasks\n"
+             << "3. Mark Task as Completed\n"
+             << "4. Delete Task\n"
+             << "5. Filter Tasks By Category\n"
+             << "6. Undo Delete Task\n"
+             << "7. Exit\n"
+             << "Enter your choice: ";
+        cin >> choice; // Read the user's choice
+
+        switch (choice) {
+            case 1:
+                addTask();
+                break;
+            case 2:
+                displayTasks();
+                break;
+            case 3:
+                markTaskAsCompleted();
+                break;
+            case 4:
+                deleteTask();
+                break;
+            case 5:
+                filterTaskByCategory();
+                break;
+            case 6:
+                undoDelete();
+                break;
+            case 7:
+                cout << "Goodbye! Please do the tasks on time.\n";
+                break;
+            default:
+                cout << "Invalid choice. Please try again.\n";
+                break;
+        }
+    } while (choice != 7); // Loop until the user chooses to exit
+}
+
+int main() {
+    displayMenu(); // Display the menu to the user
+    return 0; // End of the program
+}
+

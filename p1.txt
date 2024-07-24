@@ -1,0 +1,41 @@
+PROJECT - 1
+
+
+#include <iostream>
+#include <cstdlib>
+#include <ctime> // Include ctime for seeding rand()
+
+using namespace std;
+
+int main() {
+    srand(time(0)); // Seed the random number generator with the current time
+    int ranNum = rand() % 100; // Generate a random number between 0 and 99
+
+    cout << "Hey, let's play the random number game!" << endl;
+
+    bool win = false;
+    int trials = 6;
+    int guess;
+    int pTries = 0;
+
+    while (!win && pTries < trials) {
+        cout << "Guess a number, let's test your luck: ";
+        cin >> guess;
+        pTries++; // Increment the number of tries
+
+        if (guess == ranNum) {
+            cout << "Congratulations, you guessed the number in " << pTries << " tries!" << endl;
+            win = true;
+        } else if (guess < ranNum) {
+            cout << "The number you guessed is too low." << endl;
+        } else {
+            cout << "The number you guessed is too high." << endl;
+        }
+    }
+
+    if (!win) {
+        cout << "You failed the game. The correct number was " << ranNum << "." << endl;
+    }
+
+    return 0;
+}
